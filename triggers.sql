@@ -94,7 +94,7 @@ CREATE TRIGGER check_employees_count_trigger
     FOR EACH ROW
 EXECUTE PROCEDURE check_employees_count();
 
---внутрь ифа заходит, но значение не меняет, я не понимаю(
+--теперь работает)
 CREATE OR REPLACE FUNCTION check_compensation_amount()
     RETURNS TRIGGER AS
 $func$
@@ -107,8 +107,8 @@ BEGIN
                                                         and fc.compensation_date=NEW.compensation_date;
     IF CURRENT_AMOUNT > MAX_AMOUNT
     THEN
-        ---RAISE EXCEPTION 'Too many employees for this admin';
-        NEW.payment_amount := NEW.payment_amount - (CURRENT_AMOUNT - MAX_AMOUNT);
+        update food_compensation set payment_amount=NEW.payment_amount - (CURRENT_AMOUNT - MAX_AMOUNT) where id=NEW.id;
+        --NEW.payment_amount := NEW.payment_amount - (CURRENT_AMOUNT - MAX_AMOUNT);
     END IF;
     RETURN NEW;
 END
@@ -128,7 +128,7 @@ DECLARE
     CURRENT_COUNT int;
 BEGIN
     SELECT INTO CURRENT_COUNT count(id) from dayoff_request dr where dr.employee_id=NEW.employee_id
-                                                                and dr.end_date < CURRENT_COUNT
+                                                                and dr.end_date <= CURRENT_DATE
                                                                 and dr.is_approved=false;
     IF CURRENT_COUNT > MAX_COUNT
     THEN
@@ -143,6 +143,3 @@ CREATE TRIGGER check_dayoff_count_trigger
     ON dayoff_request
     FOR EACH ROW
 EXECUTE PROCEDURE check_dayoff_count();
-
-
-

@@ -2,12 +2,15 @@ CREATE OR REPLACE FUNCTION get_compensation_sum(comp_start_date date, comp_end_d
   RETURNS int
   LANGUAGE plpgsql
 AS $$
+DECLARE
+    RESULT int;
 BEGIN
-    select sum(fc.payment_amount) from food_compensation fc
+    select into RESULT sum(fc.payment_amount) from food_compensation fc
         where (select count(*) from dayoff_request df
-                        where df.start_date <= fc.compensation_date and df.end_date >= fc.compensation_date and df.is_approved=true
-                        group by df.id) = 0 and comp_start_date <= fc.compensation_date and comp_end_date >= fc.compensation_date and fc.employee_id=emp_id
-        group by fc.id;
+                        where df.start_date <= fc.compensation_date and df.end_date >= fc.compensation_date and df.is_approved=true) = 0
+          and comp_start_date <= fc.compensation_date and comp_end_date >= fc.compensation_date and fc.employee_id=emp_id;
+
+    return RESULT;
 END;
 $$;
 
@@ -76,6 +79,3 @@ BEGIN
     DELETE FROM productivity_statistics ps where ps.employee_id = emp_id;
 END;
 $$;
-
-
-
