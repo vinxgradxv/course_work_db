@@ -1,0 +1,11 @@
+delete from course_enrollment where true;
+delete from course where true;
+delete from dayoff_request where true;
+delete from food_compensation where true;
+delete from work_time where true;
+delete from equipment_possession where true;
+delete from enterprise_equipment where true;
+delete from task where true;
+delete from productivity_statistics where true;
+delete from employee where true;
+delete from admin where true;
